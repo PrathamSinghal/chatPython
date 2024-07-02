@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
+import requests
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -69,8 +70,18 @@ def user_input(user_question):
 
 @app.route('/process_pdf', methods=['POST'])
 def process_pdf():
-    pdf_files = request.files.getlist('pdf_files')
-    pdf_docs = [pdf_file.stream for pdf_file in pdf_files]
+    # pdf_files = request.files.getlist('pdf_files')
+    pdf_file_url = request.json.get('url')
+    query_parameters = {"downloadformat": "pdf"}
+    response = requests.get(pdf_file_url,
+                            params=query_parameters)
+
+    # print url
+    pdf = open(pdf_file_url.split('/')[-1], 'wb')
+    pdf.write(response.content)
+    pdf.close()
+
+    pdf_docs = [pdf_file_url.split('/')[-1]]
     raw_text = get_pdf_text(pdf_docs)
     text_chunks = get_text_chunks(raw_text)
     get_vector_store(text_chunks)
@@ -85,4 +96,4 @@ def ask_question():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=4002)

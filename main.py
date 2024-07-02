@@ -14,3 +14,5 @@ if __name__ == '__main__':
     print_hi('PyCharm')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+a = 'https://app.box.com/shared/static/xb03u32krysahuilj0kdf4yho4cn0ca6.pdf'
+print(a.split('/')[-1])
